@@ -92,38 +92,34 @@ pipeline {
         }
 
         stage('Update Deployment File') {
+    environment {
+        GIT_REPO_NAME = "Jenkins-Pipeline-for-Java-based-application-using-Maven-SonarQube-Argo-CD-Helm-and-Kubernetes"
+        GIT_USER_NAME = "darshan-bs-2005"
+    }
 
-            environment {
-                GIT_REPO_NAME = "Jenkins-Pipeline-for-Java-based-application-using-Maven-SonarQube-Argo-CD-Helm-and-Kubernetes"
-                GIT_USER_NAME = "darshan-bs-2005"
-            }
+    steps {
+        withCredentials([
+            string(credentialsId: 'github', variable: 'GITHUB_TOKEN')
+        ]) {
+            sh '''
+                git config --global user.email "darshanbs189@gmail.com"
+                git config --global user.name "darshan-bs-2005"
 
-            steps {
+                echo "Current directory:"
+                pwd
 
-                withCredentials([
-                    string(
-                        credentialsId: 'github',
-                        variable: 'GITHUB_TOKEN'
-                    )
-                ]) {
+                echo "Git status:"
+                git status
 
-                    sh '''
-                        git config user.email "darshanbs189@gmail.com"
-                        git config user.name "darshan-bs-2005"
+                sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
+                    spring-boot-app-manifests/deployment.yml
 
-                        BUILD_NUMBER=${BUILD_NUMBER}
+                git add spring-boot-app-manifests/deployment.yml
 
-                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
-                          spring-boot-app-manifests/deployment.yml
+                git commit -m "Update deployment image to version ${BUILD_NUMBER}" || true
 
-                        git add spring-boot-app-manifests/deployment.yml
-
-                        git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-
-                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                    '''
-                }
-            }
+                git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+            '''
         }
     }
 }
