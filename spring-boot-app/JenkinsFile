@@ -92,29 +92,22 @@ pipeline {
             string(credentialsId: 'github', variable: 'GITHUB_TOKEN')
         ]) {
             sh '''
-                echo "===== DEBUG ====="
-
-                pwd
-                ls -la
-
-                git config --global --add safe.directory /var/lib/jenkins/workspace/cicd-ultimate
-
-                echo "===== GIT ====="
-                git status
+                git config --global --add safe.directory "$WORKSPACE"
 
                 git config user.email "darshanbs189@gmail.com"
                 git config user.name "darshan-bs-2005"
-
-                BUILD_NUMBER=${BUILD_NUMBER}
 
                 sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
                     spring-boot-app-manifests/deployment.yml
 
                 git add spring-boot-app-manifests/deployment.yml
 
-                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-
-                git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                if git diff --cached --quiet; then
+                    echo "No changes to deployment.yml"
+                else
+                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                fi
             '''
         }
     }
