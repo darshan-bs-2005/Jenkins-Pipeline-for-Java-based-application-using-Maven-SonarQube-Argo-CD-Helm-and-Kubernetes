@@ -12,10 +12,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 sh 'echo passed'
-
-                // Uncomment this if Jenkins is not already configured with Git SCM
-                // git branch: 'main',
-                //     url: 'https://github.com/darshan-bs-2005/Jenkins-Pipeline-for-Java-based-application-using-Maven-SonarQube-Argo-CD-Helm-and-Kubernetes.git'
             }
         }
 
@@ -31,26 +27,23 @@ pipeline {
         }
 
         stage('Static Code Analysis') {
-
             environment {
                 SONAR_URL = "http://18.60.90.252:9000"
             }
 
             steps {
-
                 withCredentials([
                     string(
                         credentialsId: 'sonarqube',
                         variable: 'SONAR_AUTH_TOKEN'
                     )
                 ]) {
-
                     sh '''
                         echo "Checking SonarQube credential..."
 
-                        test -n "$SONAR_AUTH_TOKEN" \
-                        && echo "Token is available" \
-                        || echo "Token is EMPTY"
+                        test -n "$SONAR_AUTH_TOKEN" && \
+                        echo "Token is available" || \
+                        echo "Token is EMPTY"
 
                         cd spring-boot-app
 
@@ -63,19 +56,16 @@ pipeline {
         }
 
         stage('Build and Push Docker Image') {
-
             environment {
                 DOCKER_IMAGE = "darshanbs2005/ultimate-cicd:${BUILD_NUMBER}"
                 REGISTRY_CREDENTIALS = credentials('docker-cred')
             }
 
             steps {
-
                 script {
 
                     sh '''
                         cd spring-boot-app
-
                         docker build -t ${DOCKER_IMAGE} .
                     '''
 
@@ -90,37 +80,37 @@ pipeline {
                 }
             }
         }
-stage('Update Deployment File') {
-    environment {
-        GIT_REPO_NAME = "Jenkins-Pipeline-for-Java-based-application-using-Maven-SonarQube-Argo-CD-Helm-and-Kubernetes"
-        GIT_USER_NAME = "darshan-bs-2005"
-    }
 
-    steps {
-        withCredentials([
-            string(credentialsId: 'github', variable: 'GITHUB_TOKEN')
-        ]) {
-            sh '''
-                echo "Current directory:"
-                pwd
+        stage('Update Deployment File') {
+            environment {
+                GIT_REPO_NAME = "Jenkins-Pipeline-for-Java-based-application-using-Maven-SonarQube-Argo-CD-Helm-and-Kubernetes"
+                GIT_USER_NAME = "darshan-bs-2005"
+            }
 
-                echo "Checking Git repository:"
-                git status
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'github',
+                        variable: 'GITHUB_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        git config user.email "darshanbs189@gmail.com"
+                        git config user.name "darshan-bs-2005"
 
-                git config user.email "darshanbs189@gmail.com"
-                git config user.name "darshan-bs-2005"
+                        BUILD_NUMBER=${BUILD_NUMBER}
 
-                BUILD_NUMBER=${BUILD_NUMBER}
+                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
+                            spring-boot-app-manifests/deployment.yml
 
-                sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
-                    spring-boot-app-manifests/deployment.yml
+                        git add spring-boot-app-manifests/deployment.yml
 
-                git add spring-boot-app-manifests/deployment.yml
+                        git commit -m "Update deployment image to version ${BUILD_NUMBER}"
 
-                git commit -m "Update deployment image to version ${BUILD_NUMBER}" || true
-
-                git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
-            '''
+                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                    '''
+                }
+            }
         }
     }
 }
