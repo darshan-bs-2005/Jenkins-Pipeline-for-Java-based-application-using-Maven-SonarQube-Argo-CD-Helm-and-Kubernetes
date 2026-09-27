@@ -1,25 +1,82 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"/>
-    <link data-th-href="@{/css/main.css?{id}(id=${timestamp})}" rel="stylesheet">
-    <title>CI/CD Master Class By Abhishek Veeramalla</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CloudDeploy</title>
+
+    <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
 
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="#">Ultimate CI/CD Pipeline using Java</div></a>
-</nav>
+    <nav>
+        <div class="logo">CloudDeploy</div>
 
-<main role="main" class="container">
-    <div class="starter-template">
-        <h1 th:text="${title}">Default title.</h1>
-        <p th:text="${msg}">Default text.</p>
-    </div>
-</main>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#services">Services</a>
+            <a href="#pipeline">Pipeline</a>
+        </div>
+    </nav>
 
-<script data-th-src="@{/js/main.js}"></script>
+    <section id="home" class="hero">
+        <h1>DevOps Cloud Platform</h1>
+
+        <p>
+            Spring Boot application successfully deployed on Kubernetes
+            using Jenkins and Argo CD.
+        </p>
+
+        <button onclick="showMessage()">
+            View Deployment
+        </button>
+    </section>
+
+    <section id="services" class="services">
+        <h2>Technology Stack</h2>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>☕ Spring Boot</h3>
+                <p>Java application built using Spring Boot and Maven.</p>
+            </div>
+
+            <div class="card">
+                <h3>🐳 Docker</h3>
+                <p>Application containerized and pushed to Docker Hub.</p>
+            </div>
+
+            <div class="card">
+                <h3>☸ Kubernetes</h3>
+                <p>Application deployed and managed using Kubernetes.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="pipeline" class="pipeline-section">
+        <h2>CI/CD Pipeline</h2>
+
+        <div class="pipeline">
+            <span>GitHub</span>
+            <span>Jenkins</span>
+            <span>Maven</span>
+            <span>SonarQube</span>
+            <span>Docker</span>
+            <span>Docker Hub</span>
+            <span>Argo CD</span>
+            <span>Kubernetes</span>
+        </div>
+    </section>
+
+    <footer>
+        DevOps CI/CD Project © 2026
+    </footer>
+
+    <script src="/script.js"></script>
+
 </body>
-
 </html>
