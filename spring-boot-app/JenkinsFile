@@ -82,35 +82,38 @@ pipeline {
         }
 
         stage('Update Deployment File') {
-            environment {
-                GIT_REPO_NAME = "Jenkins-Pipeline-for-Java-based-application-using-Maven-SonarQube-Argo-CD-Helm-and-Kubernetes"
-                GIT_USER_NAME = "darshan-bs-2005"
-            }
+    environment {
+        GIT_REPO_NAME = "Jenkins-Pipeline-for-Java-based-application-using-Maven-SonarQube-Argo-CD-Helm-and-Kubernetes"
+        GIT_USER_NAME = "darshan-bs-2005"
+    }
 
-            steps {
-                withCredentials([
-                    string(
-                        credentialsId: 'github',
-                        variable: 'GITHUB_TOKEN'
-                    )
-                ]) {
-                    sh '''
-                        git config user.email "darshanbs189@gmail.com"
-                        git config user.name "darshan-bs-2005"
+    steps {
+        withCredentials([
+            string(credentialsId: 'github', variable: 'GITHUB_TOKEN')
+        ]) {
+            sh '''
+                echo "===== DEBUG ====="
+                pwd
+                echo "===== FILES ====="
+                ls -la
+                echo "===== GIT ====="
+                git status
+                echo "================="
 
-                        BUILD_NUMBER=${BUILD_NUMBER}
+                git config user.email "darshanbs189@gmail.com"
+                git config user.name "darshan-bs-2005"
 
-                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
-                            spring-boot-app-manifests/deployment.yml
+                BUILD_NUMBER=${BUILD_NUMBER}
 
-                        git add spring-boot-app-manifests/deployment.yml
+                sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
+                    spring-boot-app-manifests/deployment.yml
 
-                        git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                git add spring-boot-app-manifests/deployment.yml
 
-                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                    '''
-                }
-            }
+                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+
+                git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+            '''
         }
     }
 }
